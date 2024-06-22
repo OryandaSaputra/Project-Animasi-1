@@ -1,0 +1,211 @@
+import bpy
+import math
+
+#Membuat def Persegi
+def persegi(x,y,z, sx,sy,sz, rx,ry,rz, name='',warna=None):
+    bpy.ops.mesh.primitive_cube_add(size=1, location=(x,y,z))
+    ob = bpy.context.active_object
+    ob.scale = (sx,sy,sz)
+    ob.rotation_euler = [rx,ry,rz]
+    ob.name = name
+    
+    if warna is not None:
+        #pembuatan material
+        material = bpy.data.materials.new(name + "_Material")
+        #menonaktifkan node shader
+        material.use_nodes = False
+        #mengatur warna dasar untuk material
+        material.diffuse_color = warna
+        #menambahkan material di objek
+        if ob.data.materials:
+            ob.data.materials[0] = material
+        else:
+            ob.data.materials.append(material)
+            
+    return ob
+
+#Membuat def Cylinder
+def silinder(x,y,z, sx,sy,sz, rx,ry,rz, v,r,d, name='',warna=None):
+    bpy.ops.mesh.primitive_cylinder_add(vertices=v, radius=r, depth=d, location=(x,y,z))
+    ob = bpy.context.active_object
+    ob.scale = (sx,sy,sz)
+    ob.rotation_euler = [rx,ry,rz]
+    ob.name = name
+    
+    if warna is not None:
+        #pembuatan material
+        material = bpy.data.materials.new(name + "_Material")
+        #menonaktifkan node shader
+        material.use_nodes = False
+        #mengatur warna dasar untuk material
+        material.diffuse_color = warna
+        #menambahkan material di objek
+        if ob.data.materials:
+            ob.data.materials[0] = material
+        else:
+            ob.data.materials.append(material)
+            
+#Membuat def tekstur
+def apply_texture(obj_name, texture_path):
+    #pembuatan material tekstur
+    mat = bpy.data.materials.new(name="New_Mat")
+    mat.use_nodes = True
+    bsdf = mat.node_tree.nodes["Principled BSDF"]
+    #menambahkan node gambar dan mengatur path gambar
+    texImage = mat.node_tree.nodes.new('ShaderNodeTexImage')
+    texImage.image = bpy.data.images.load(texture_path)
+    mat.node_tree.links.new(bsdf.inputs['Base Color'], texImage.outputs['Color'])
+    #memanggil objek berdasarkan nama
+    ob = bpy.data.objects.get(obj_name)
+
+    if ob:
+        #menambahkan material pada objek
+        if ob.data.materials:
+            ob.data.materials[0] = mat
+        else:
+            ob.data.materials.append(mat)
+            
+
+#------------------------------Kodingan Bangun Ruang------------------------------
+
+
+#Alas Bangunan
+persegi(0,5,-2,  50,40,4,  0,0,0,'Alas Bangun Ruang');
+
+#Bangunan Utama
+persegi(-10,10,20,  20,20,46.5,  0,0,0, 'Bangunan Utama'); 
+persegi( 10,10,10,  20,14,20,    0,0,0, 'Bangunan Cafe', warna = (0.7,0.5,0.3,0)); 
+
+#Tiang Bangunan Utama
+persegi( -0.5, 0.5,24,  2,2,48,  0,0,0,  'tiang1', warna = (0.4,0.4,0.4,0));
+persegi( -0.5,19.5,24,  2,2,48,  0,0,0,  'tiang2', warna = (0.4,0.4,0.4,0));
+persegi(-19.5,19.5,21,  2,2,42,  0,0,0,  'tiang3', warna = (0.4,0.4,0.4,0));
+persegi(-19.5, 0.5,21,  2,2,42,  0,0,0,  'tiang4', warna = (0.4,0.4,0.4,0));
+persegi(  -10, 0.5,20,  20,2,2,  0,0,0,  'tiang5', warna = (0.4,0.4,0.4,0));
+persegi(  -10,19.5,20,  20,2,2,  0,0,0,  'tiang6', warna = (0.4,0.4,0.4,0));
+persegi(-19.5,  10,20,  2,20,2,  0,0,0,  'tiang7', warna = (0.4,0.4,0.4,0));
+persegi( -0.5,  10,20,  2,20,2,  0,0,0,  'tiang8', warna = (0.4,0.4,0.4,0));
+
+#Atap bangunan Utama
+persegi(-10,10,45.1,  27,27,2,  0,math.radians(-15),0,  'Atap Miring Utama', warna=(0,0.2,0.5,0));
+persegi(-7,10,44,  14,20,2,  0,0,0,  'Bolongan Tengah'  , warna = (0.2,0.1,0.1,0));
+persegi(-3,10,46,   6,20,2,  0,0,0,  'Bolongan Depan'   , warna = (0.2,0.1,0.1,0));
+persegi(-6,10,45,   2,20,2,  0,0,0,  'Bolongan Belakang', warna = (0.2,0.1,0.1,0));
+
+#Atap Cafe
+persegi(10.5,10,22, 24,20.8,2,  0,math.radians(15),0,  'Atap Miring Cafe', warna=(0,0.2,0.5,0));
+
+#Detail dinding Cafe
+persegi(5, 9.5,19,  10,15, 8,  0,0,0,  'Bolongan 1',  warna = (0.7,0.5,0.3,0));
+persegi(15,9.5,15,  10,15,10,  0,0,0,  'Bolongan 2',  warna = (0.7,0.5,0.3,0));
+persegi(11,9.5,20,   6,15, 3,  0,0,0,  'Bolongan 3',  warna = (0.7,0.5,0.3,0));
+persegi(0, 9.5,23,    6,15,3,  0,0,0,  'Bolongan 4',  warna = (0.8,0.6,0.4,0));
+
+persegi(   18,3,5,   4,2,10,  0,0,0,  'Detail Pintu',    warna = (0.7,0.5,0.3,0));
+persegi( 10.5,3,5,   1,2,10,  0,0,0,  'Detail Pintu2',   warna = (0.7,0.5,0.3,0));
+persegi(    5,3,2,   10,2,4,  0,0,0,  'Detail Jendela',  warna = (0.7,0.5,0.3,0));
+persegi(0.5,3,9.5,   2,2,11,  0,0,0,  'Detail Jendela2', warna = (0.7,0.5,0.3,0));
+
+#Alas Balkon
+persegi(  -10,-3,22,  8,6,1,  0,0,0,  'Lantai Balkon',  warna = (0.4,0.4,0.4,0));
+persegi(-13,-2.6,19,  1,1,8,  math.radians(45),0,0,  'Penyanggah 1',  warna = (0.2,0.1,0.1,0));
+persegi( -7,-2.6,19,  1,1,8,  math.radians(45),0,0,  'Penyanggah 2',  warna = (0.2,0.1,0.1,0));
+
+#Pagar Balkon
+persegi(-13.5,-5.75,23.5,  0.3,0.3,3,  0,0,0,    'Pagar kiri',  warna = (0.2,0.1,0.1,0));
+persegi(-13.5,-3.25,23.5,  0.3,0.3,3,  0,0,0,  'Pagar kiri 2',  warna = (0.2,0.1,0.1,0));
+persegi(-13.5,-0.75,23.5,  0.3,0.3,3,  0,0,0,  'Pagar kiri 3',  warna = (0.2,0.1,0.1,0));
+
+persegi( -6.5,-3.25,23.5,  0.3,0.3,3,  0,0,0,   'Pagar Kanan',  warna = (0.2,0.1,0.1,0));
+persegi( -6.5,-0.75,23.5,  0.3,0.3,3,  0,0,0,  'Pagar Kanan2',  warna = (0.2,0.1,0.1,0));
+
+persegi(-11.5,-5.75,23.5,  0.3,0.3,3,  0,0,0,    'Pagar Depan'  ,warna = (0.2,0.1,0.1,0));
+persegi(   -9,-5.75,23.5,  0.3,0.3,3,  0,0,0,  'Pagar Depan 2'  ,warna = (0.2,0.1,0.1,0));
+persegi( -6.5,-5.75,23.5,  0.3,0.3,3,  0,0,0,  'Pagar Depan 3'  ,warna = (0.2,0.1,0.1,0));
+
+persegi(  -6.5,-3,25,    0.5,6,0.5,  0,0,0,  'Pegangan 1',  warna = (0.2,0.1,0.1,0));
+persegi( -13.5,-3,25,    0.5,6,0.5,  0,0,0,  'Pegangan 2',  warna = (0.2,0.1,0.1,0));
+persegi(-10,-5.75,25,  7.5,0.5,0.5,  0,0,0,  'Pegangan 3',  warna = (0.2,0.1,0.1,0));
+
+#Pintu Bangunan Utama
+persegi(-10, 0,27,  3.5,0.5,9,  0,0,0); 
+persegi(-10,0,4.5,    5,0.5,9,  0,0,0,  'Pintu Utama',  warna = (0,0.2,1,0));  
+
+#Jendela Bangunan Utama
+persegi(  -4.5,0,7.5,  5,0.5,9,   0,0,0,  'jendela bawah 1',  warna = (0.3,0.8,1,2));  
+persegi( -15.5,0,7.5,  5,0.5,9,   0,0,0,  'jendela bawah 2',  warna = (0.3,0.8,1,2));  
+
+persegi( -4.5,0,29.5,  5,0.5,9,   0,0,0,  'jendela atas 1',  warna = (0.3,0.8,1,2));  
+persegi(-15.5,0,29.5,  5,0.5,9,   0,0,0,  'jendela atas 2',  warna = (0.3,0.8,1,2));  
+
+#Jendela Cafe
+persegi( 5.8,2.5,9.5,  8,0.5,10,  0,0,0,  'jendela Cafe',  warna = (0.3,0.8,1,2));  
+
+#kursi
+persegi(5.5,0.5,2.5,    7,2,0.5,  0,0,0,  'Alas Kursi'); 
+persegi(  8,0.5,  1,  0.5,1.5,3,  0,0,0,  'Kaki Kursi Kanan');  
+persegi(  3,0.5,  1,  0.5,1.5,3,  0,0,0,  'Kaki Kursi Kiri'); 
+
+#meja
+persegi(5.5,-3,3.5,     5,3,0.5,  0,0,0,  'Alas Meja');  
+persegi(  7,-3,1.5,  0.25,1.5,4,  0,0,0,  'Kaki Meja Kanan');  
+persegi(  4,-3,1.5,  0.25,1.5,4,  0,0,0,  'Kaki Meja Kiri');  
+
+#Antena
+silinder(  4,19,  52,  2,2,20,  0,0,0,                 32,0.2,1, 'Antena 1');
+silinder(6.5,19,61.5,  2,2, 5,  0,math.radians(90),0,  32,0.2,1,  'Antena 2');
+persegi(   2,19,  45,  6,1, 1,  0,0,0,  'Antena 3');
+persegi(   2,19,  43,  6,1, 1,  0,0,0,  'Antena 4');
+
+#tempat sampah
+persegi( 21.7,10,2,  3,5,4,                 0,0,0,        'Badan Tempat Sampah',warna = (0.1,0.1,0.1,0));
+silinder(21.2,10,4,  2,2,5,  math.radians(90),0,0,  8,1,1,'Kepala Tempat Sampah',warna = (0.1,0.1,0.1,0))
+
+
+#--------------------Tekstur--------------------
+
+#Bangunan Utama
+apply_texture('Bangunan Utama', texture_path="C:\\Semester 3\\Animasi 1\\Tekstur\\bata1.jpg");
+
+#Tekstur Kursi
+apply_texture('Alas Kursi', texture_path="C:\\Semester 3\\Animasi 1\\Tekstur\\kayu.jpg");
+apply_texture('Kaki Kursi Kanan', texture_path="C:\\Semester 3\\Animasi 1\\Tekstur\\kayu.jpg");
+apply_texture('Kaki Kursi Kiri', texture_path="C:\\Semester 3\\Animasi 1\\Tekstur\\kayu.jpg");
+
+#Tekstur Meja
+apply_texture('Alas Meja', texture_path="C:\\Semester 3\\Animasi 1\\Tekstur\\kayu.jpg");
+apply_texture('Kaki Meja Kanan', texture_path="C:\\Semester 3\\Animasi 1\\Tekstur\\kayu.jpg");
+apply_texture('Kaki Meja Kiri', texture_path="C:\\Semester 3\\Animasi 1\\Tekstur\\kayu.jpg");
+
+#Tekstur Alas Bangunan
+apply_texture('Alas Bangun Ruang', texture_path="C:\\Semester 3\\Animasi 1\\Tekstur\\batu.jpg");
+
+#Tekstur Bangunan Cafe
+apply_texture('Bangunan Cafe', texture_path="C:\\Semester 3\\Animasi 1\\Tekstur\\kayu.jpg");
+apply_texture('Bolongan 1', texture_path="C:\\Semester 3\\Animasi 1\\Tekstur\\kayu.jpg");
+apply_texture('Bolongan 2', texture_path="C:\\Semester 3\\Animasi 1\\Tekstur\\kayu.jpg");
+apply_texture('Bolongan 3', texture_path="C:\\Semester 3\\Animasi 1\\Tekstur\\kayu.jpg");
+apply_texture('Bolongan 4', texture_path="C:\\Semester 3\\Animasi 1\\Tekstur\\kayu.jpg");
+apply_texture('Detail Jendela', texture_path="C:\\Semester 3\\Animasi 1\\Tekstur\\kayu.jpg");
+apply_texture('Detail Jendela2', texture_path="C:\\Semester 3\\Animasi 1\\Tekstur\\kayu.jpg");
+apply_texture('Detail Pintu', texture_path="C:\\Semester 3\\Animasi 1\\Tekstur\\kayu.jpg");
+apply_texture('Detail Pintu2', texture_path="C:\\Semester 3\\Animasi 1\\Tekstur\\kayu.jpg");
+
+
+#--------------------animasi--------------------
+
+def animasi_per_frame(obj, frame, arah):
+    obj.location.x += arah
+    obj.keyframe_insert(data_path="location", index=0, frame=frame)
+
+bpy.context.scene.frame_end = 180
+bpy.context.scene.render.fps = 30
+pintu = persegi(17.5,3,5,  5,1.8,10  ,0,0,0,'pintu',warna = (0.2,0.1,0.1,0)); #buat pintu
+obj = pintu
+obj.select_set(True)
+bpy.context.view_layer.objects.active = obj
+for frame in range(1, 42):
+    animasi_per_frame(obj, frame, -0.1)
+        
+for frame in range(119, 160):
+    animasi_per_frame(obj, frame, 0.1)
